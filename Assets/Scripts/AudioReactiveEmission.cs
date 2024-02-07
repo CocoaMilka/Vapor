@@ -3,7 +3,7 @@ using UnityEngine;
 public class AudioReactiveEmission : MonoBehaviour
 {
     public AudioSource audioSource; // Assign this from the Inspector
-    public Material targetMaterial; // The material whose emission will react to the audio
+    Material targetMaterial; // The material whose emission will react to the audio
     public float sensitivity = 100.0f; // Sensitivity of the emission reaction to the audio volume
     public Color emissionColor = Color.white; // Emission color
 
@@ -17,6 +17,9 @@ public class AudioReactiveEmission : MonoBehaviour
             this.enabled = false; // Disable this script if no AudioSource is assigned
             return;
         }
+
+        // Grab Material
+        targetMaterial = GetComponent<Renderer>().material;
 
         if (targetMaterial != null)
         {
