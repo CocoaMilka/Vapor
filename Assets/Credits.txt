@@ -1,0 +1,12 @@
+(Unused) HDRI: https://polyhaven.com/a/pink_sunrise
+
+Wireframe Shader: https://github.com/Chaser324/unity-wireframe
+
+VHS Shader: https://github.com/staffantan/unity-vhsglitch
+
+VHS Font: https://www.dafont.com/vcr-osd-mono.font
+
+Car: https://sketchfab.com/3d-models/muscle-car-classic-blue-low-poly-13f1dfbb79e843348561c2acb2203cd1#download
+
+Music: https://www.youtube.com/watch?v=1Y34Ewku0kc
+Credit: Karl Casey @ White Bat Audio
