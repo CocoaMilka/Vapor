@@ -2,37 +2,36 @@ using UnityEngine;
 
 public class ScrollingTexture : MonoBehaviour
 {
-    public Vector2 scrollSpeed = new Vector2(0.1f, 0.0f);
-
-    private Material material; // Use Material instead of Renderer
+    private Material material; // Material whose texture will be scrolled
+    private Vector2 offset = Vector2.zero; // Current accumulated offset
+    private float speed; // Current speed for scrolling
 
     void Start()
     {
         material = GetComponent<Renderer>().material; // Get the material directly
+        speed = -SpeedController.Instance.currentSpeed; // Initialize speed from the SpeedController
+        SpeedController.Instance.OnSpeedChanged += HandleSpeedChanged; // Subscribe to speed changes
     }
 
-    void OnEnable()
+    void OnDestroy()
     {
-        PlayerController.OnSpeedChanged += HandleSpeedChanged;
-    }
-
-    void OnDisable()
-    {
-        PlayerController.OnSpeedChanged -= HandleSpeedChanged;
+        if (SpeedController.Instance != null)
+        {
+            SpeedController.Instance.OnSpeedChanged -= HandleSpeedChanged; // Unsubscribe to prevent memory leaks
+        }
     }
 
     void HandleSpeedChanged(float newSpeed)
     {
-        scrollSpeed = new Vector2(0, -newSpeed); // Update this object's speed based on the player's speed
-        // Additional logic to adjust this object's movement based on the new speed
+        speed = -newSpeed; // Update speed based on the player's speed, negative for scrolling down
     }
 
     void Update()
     {
-        Vector2 offset = Time.time * scrollSpeed;
+        // Accumulate the offset based on the current speed and time elapsed since last frame
+        offset.y += speed * Time.deltaTime;
 
-        // Ensure you're using the correct property name for the shader you're using
-        // "_BaseMap" is commonly used in URP for the main texture, but this might vary based on your shader
-        material.SetTextureOffset("_BaseMap", offset);
+        // Apply the accumulated offset to the material's texture
+        material.mainTextureOffset = offset;
     }
 }

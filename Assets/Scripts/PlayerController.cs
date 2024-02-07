@@ -1,19 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-public delegate void SpeedChanged(float newSpeed);
 
 public class PlayerController : MonoBehaviour
 {
-    public static event SpeedChanged OnSpeedChanged; // Static event invoked when speed changes
-
-    public float speed = 5.0f; // Speed at which the player moves
-    public float speedChangeAmount = 0.01f; // Amount by which speed increases or decreases
+    public float acceleration = 1.4f; // Rate at which speed increases
+    public float deceleration = 1.5f; // Rate at which speed decreases
     public float tiltAmount = 15.0f; // Maximum tilt angle
     public float tiltSpeed = 5.0f; // Speed of tilting
 
     public GameObject carBody; // Car body to tilt
+
+    private float currentSpeed; // To keep track of the current speed based on the SpeedController
+
+    void Start()
+    {
+        // Initialize current speed from the SpeedController at start
+        currentSpeed = SpeedController.Instance.currentSpeed;
+    }
 
     void Update()
     {
@@ -22,52 +24,42 @@ public class PlayerController : MonoBehaviour
         // Move player left with A key
         if (Input.GetKey(KeyCode.A))
         {
-            if (transform.position.x <= -2)
+            if (transform.position.x > -2) // Check for left boundary
             {
-                // Do nothing, wall collision
-            }
-            else
-            {
-                transform.Translate(Vector3.left * speed * Time.deltaTime);
-                tilt = tiltAmount; // Set tilt to maximum tilt angle when moving left
+                transform.Translate(Vector3.left * currentSpeed * Time.deltaTime);
+                tilt = tiltAmount; // Tilt left when moving left
             }
         }
 
         // Move player right with D key
         if (Input.GetKey(KeyCode.D))
         {
-            if (transform.position.x >= 2)
+            if (transform.position.x < 2) // Check for right boundary
             {
-                // Do nothing, wall collision
-            }
-            else
-            {
-                transform.Translate(Vector3.right * speed * Time.deltaTime);
-                tilt = -tiltAmount; // Set tilt to negative maximum tilt angle when moving right
+                transform.Translate(Vector3.right * currentSpeed * Time.deltaTime);
+                tilt = -tiltAmount; // Tilt right when moving right
             }
         }
 
-        // Increase speed when W key is pressed
+        // Increase speed when W key is held
         if (Input.GetKey(KeyCode.W))
         {
-            speed += speedChangeAmount; // Increase the speed
-            if (speed > 10) speed = 10;
-            Debug.Log("Current Speed: " + speed);
-            OnSpeedChanged?.Invoke(speed); // Invoke the event, passing the new speed as an argument
+            SpeedController.Instance.IncreaseSpeed(acceleration * Time.deltaTime);
         }
 
-        // Decrease speed when S key is pressed
+        // Decrease speed when S key is held
         if (Input.GetKey(KeyCode.S))
         {
-            speed -= speedChangeAmount; // Decrease the speed
-            if (speed < 3) speed = 3; // Prevent speed from going negative
-            OnSpeedChanged?.Invoke(speed); // Invoke the event, passing the new speed as an argument
+            SpeedController.Instance.DecreaseSpeed(deceleration * Time.deltaTime);
         }
+
+        // Update the current speed from the SpeedController to ensure it's in sync
+        currentSpeed = SpeedController.Instance.currentSpeed;
 
         // Interpolate carBody rotation towards target rotation based on tilt
         if (carBody != null)
         {
-            Quaternion targetRotation = Quaternion.Euler(0, 0, tilt); // Assuming Z-axis is the correct tilt axis
+            Quaternion targetRotation = Quaternion.Euler(0, 0, tilt);
             carBody.transform.localRotation = Quaternion.Lerp(carBody.transform.localRotation, targetRotation, Time.deltaTime * tiltSpeed);
         }
     }

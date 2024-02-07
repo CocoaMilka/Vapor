@@ -3,8 +3,27 @@ using UnityEngine;
 
 public class SpeedController : MonoBehaviour
 {
-    public static float currentSpeed = 5.0f; // Default speed
-    public static event Action<float> OnSpeedChanged;
+    public static SpeedController Instance { get; private set; }
+    public float currentSpeed = 1.0f; // Default speed
+    public event Action<float> OnSpeedChanged;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject); // Ensure only one instance exists
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Optional: keep instance alive across scenes
+        }
+    }
+
+    private void Update()
+    {
+        Debug.Log(currentSpeed);
+    }
 
     // Method to call when increasing speed
     public void IncreaseSpeed(float amount)
