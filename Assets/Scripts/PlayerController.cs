@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
 
     private float currentSpeed; // To keep track of the current speed based on the SpeedController
 
-    void Start()
+    void Awake()
     {
         // Initialize current speed from the SpeedController at start
         currentSpeed = SpeedController.Instance.currentSpeed;
