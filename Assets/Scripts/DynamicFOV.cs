@@ -2,55 +2,57 @@ using UnityEngine;
 
 public class DynamicFOV : MonoBehaviour
 {
-    public Camera camera; // Assign your main camera here
-    public float baseFOV = 90f; // The base FOV at starting speed
-    public float maxFOV = 110f; // The maximum FOV at maximum speed
-    public float maxSpeed = 20f; // The speed at which FOV reaches its maximum
-    public float shakeMagnitude = 0.1f; // Maximum shake intensity
+    public Camera camera;
+    public float baseFOV = 90f;
+    public float maxFOV = 110f;
+    public float maxSpeed = 20f;
+    public float shakeMagnitude = 0.01f;
+    public float shakeSmoothFactor = 0.5f; // Added for smoothing the shake transition
 
-    private Vector3 originalCamPos; // To store the camera's original position
-    private float currentShakeIntensity = 0f; // Current shake intensity based on speed
+    private Vector3 originalCamPos;
+    private Vector3 targetShakeOffset; // Target offset for smoother shake
 
     void Start()
     {
         if (camera == null)
         {
-            camera = Camera.main; // Automatically assign the main camera if not set
+            camera = Camera.main;
         }
         originalCamPos = camera.transform.localPosition;
-
-        // Subscribe to the OnSpeedChanged event
         SpeedController.Instance.OnSpeedChanged += AdjustFOVAndShake;
     }
 
     void OnDestroy()
     {
-        // Unsubscribe to prevent memory leaks
         SpeedController.Instance.OnSpeedChanged -= AdjustFOVAndShake;
     }
 
     void AdjustFOVAndShake(float newSpeed)
     {
-        // Calculate the new FOV. This maps the range of speeds to the range of FOVs
         float newFOV = Mathf.Lerp(baseFOV, maxFOV, newSpeed / maxSpeed);
-        camera.fieldOfView = Mathf.Clamp(newFOV, baseFOV, maxFOV); // Clamp the FOV
+        camera.fieldOfView = Mathf.Clamp(newFOV, baseFOV, maxFOV);
 
-        // Update shake intensity based on how close the speed is to maxSpeed
-        currentShakeIntensity = Mathf.Lerp(0f, shakeMagnitude, newSpeed / maxSpeed);
+        float speedRatio = newSpeed / maxSpeed;
+        if (speedRatio > 0.5f)
+        {
+            float adjustedSpeedRatio = (speedRatio - 0.5f) * 2f;
+            targetShakeOffset = Random.insideUnitSphere * Mathf.Lerp(0f, shakeMagnitude, adjustedSpeedRatio);
+        }
+        else
+        {
+            targetShakeOffset = Vector3.zero;
+        }
     }
 
     void Update()
     {
-        // Apply continuous camera shake based on the current shake intensity
-        if (currentShakeIntensity > 0)
+        if (targetShakeOffset != Vector3.zero)
         {
-            Vector3 shakeOffset = Random.insideUnitSphere * currentShakeIntensity;
-            camera.transform.localPosition = originalCamPos + shakeOffset;
+            camera.transform.localPosition = Vector3.Lerp(camera.transform.localPosition, originalCamPos + targetShakeOffset, shakeSmoothFactor * Time.deltaTime);
         }
         else
         {
-            // Reset to original position if there's no shake
-            camera.transform.localPosition = originalCamPos;
+            camera.transform.localPosition = Vector3.Lerp(camera.transform.localPosition, originalCamPos, shakeSmoothFactor * Time.deltaTime);
         }
     }
 }

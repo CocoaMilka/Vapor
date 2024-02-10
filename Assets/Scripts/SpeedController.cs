@@ -4,9 +4,9 @@ using UnityEngine;
 public class SpeedController : MonoBehaviour
 {
     public static SpeedController Instance { get; private set; }
-    public float currentSpeed = 1.0f; // Default speed
+    public float currentSpeed = 1.5f; // Default starting speed
     public float maxSpeed = 10.0f; // Maximum speed limit
-    public float minSpeed = 0.5f; // Minimum speed limit
+    public float minSpeed = 1.5f; // Minimum speed limit
     public event Action<float> OnSpeedChanged;
 
     void Awake()
