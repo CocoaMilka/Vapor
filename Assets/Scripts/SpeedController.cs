@@ -24,7 +24,7 @@ public class SpeedController : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(currentSpeed);
+        //Debug.Log(currentSpeed);
     }
 
     // Method to call when increasing speed

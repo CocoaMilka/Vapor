@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
     public float deceleration = 1.5f; // Rate at which speed decreases
     public float tiltAmount = 15.0f; // Maximum tilt angle
     public float tiltSpeed = 5.0f; // Speed of tilting
+    public float movementSpeedFactor = 1.2f; // Additional speed factor for left/right movement
 
     public GameObject carBody; // Car body to tilt
 
@@ -20,13 +21,14 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         float tilt = 0; // Reset tilt to 0 each frame
+        float lateralMoveSpeed = currentSpeed * movementSpeedFactor; // Calculate lateral movement speed
 
         // Move player left with A key
         if (Input.GetKey(KeyCode.A))
         {
             if (transform.position.x > -2) // Check for left boundary
             {
-                transform.Translate(Vector3.left * currentSpeed * Time.deltaTime);
+                transform.Translate(Vector3.left * lateralMoveSpeed * Time.deltaTime);
                 tilt = tiltAmount; // Tilt left when moving left
             }
         }
@@ -36,7 +38,7 @@ public class PlayerController : MonoBehaviour
         {
             if (transform.position.x < 2) // Check for right boundary
             {
-                transform.Translate(Vector3.right * currentSpeed * Time.deltaTime);
+                transform.Translate(Vector3.right * lateralMoveSpeed * Time.deltaTime);
                 tilt = -tiltAmount; // Tilt right when moving right
             }
         }
