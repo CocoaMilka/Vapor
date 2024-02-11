@@ -5,10 +5,28 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public int score = 0;
+    public static GameManager Instance { get; private set; }
+
     public GameObject pauseMenu;
+    public GameObject gameoverScreen;
+    public TextMeshProUGUI scoreText;
     public TextMeshProUGUI stateText; // Reference to the UI text component that shows the game's state
     private bool isPaused = false; // Track whether the game is paused
     private List<AudioSource> audioSources = new List<AudioSource>(); // List to keep track of all audio sources
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            //DontDestroyOnLoad(gameObject); // This keeps the instance alive across scenes
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject); // Destroy duplicate instances
+        }
+    }
 
     void Start()
     {
@@ -71,6 +89,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Resume()
+    {
+        isPaused = false;
+        Time.timeScale = 1f; // Resume the game by setting time scale back to 1
+        stateText.text = "PLAY"; // Update the UI text to indicate the game is playing
+        pauseMenu?.SetActive(false);
+        ResumeAudio(); // Resume all audio sources
+    }
+
     public void Restart()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -79,5 +106,22 @@ public class GameManager : MonoBehaviour
         // Reset all values smh
         SpeedController.Instance.currentSpeed = 1.5f;
 
+    }
+
+    public void MainMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void GameOver()
+    {
+        Time.timeScale = 0;
+        gameoverScreen.SetActive(true);
+    }
+
+    public void UpdateScore(int points)
+    {
+        score += points;
+        scoreText.text = "SCORE: " + score.ToString();
     }
 }

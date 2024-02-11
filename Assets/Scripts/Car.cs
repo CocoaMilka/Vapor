@@ -8,8 +8,12 @@ public class Car : MonoBehaviour
     private Vector3 startPosition;
     public Vector3 moveDirection = -Vector3.forward; // Default move direction
 
+    public GameManager manager;
+    // Start is called before the first frame update
+
     void Start()
     {
+        manager = GameManager.Instance;
         startPosition = transform.position; // Remember the start position of the car
         moveSpeed = baseMoveSpeed + SpeedController.Instance.currentSpeed; // Initialize moveSpeed with baseMoveSpeed
         SpeedController.Instance.OnSpeedChanged += HandleSpeedChanged; // Subscribe to speed changes
@@ -37,5 +41,15 @@ public class Car : MonoBehaviour
         // Update the car's speed based on the SpeedController's speed plus the base speed
         // Adjust this formula as needed to fit the desired speed behavior
         moveSpeed = baseMoveSpeed + newSpeed; // Simple linear addition for demonstration
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            // Here you can define how much score should be added
+            // For example, adding 10 points whenever a car successfully passes
+            manager.UpdateScore(10);
+        }
     }
 }
